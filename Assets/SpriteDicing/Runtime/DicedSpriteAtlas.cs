@@ -1,59 +1,53 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SpriteDicing
 {
     /// <summary>
-    /// Manages diced sprite data and atlas texture.
+    /// Stores diced sprites and associated atlas textures.
     /// </summary>
     [CreateAssetMenu(menuName = "Diced Sprite Atlas", order = 350)]
     public class DicedSpriteAtlas : ScriptableObject
     {
         /// <summary>
-        /// Number of diced sprites stored in this atlas.
+        /// Diced sprites stored in the atlas.
         /// </summary>
-        public int SpritesCount => dicedSprites.Count;
+        public IReadOnlyList<Sprite> Sprites => sprites;
         /// <summary>
-        /// Number of textures used by this atlas.
+        /// Atlas textures used by the diced sprites.
         /// </summary>
-        public int TexturesCount => atlasTextures.Count;
-        /// <summary>
-        /// Whether the atlas is built and ready to be used.
-        /// </summary>
-        public bool IsBuilt => TexturesCount > 0 && SpritesCount > 0;
+        public IReadOnlyList<Texture2D> Textures => textures;
 
-        [SerializeField] private List<Texture2D> atlasTextures = new List<Texture2D>();
-        [SerializeField] private List<DicedSprite> dicedSprites = new List<DicedSprite>();
+        [SerializeField] private List<Sprite> sprites = new List<Sprite>();
+        [SerializeField] private List<Texture2D> textures = new List<Texture2D>();
 
         #if UNITY_EDITOR
         // Editor-only data to track source sprite textures and store build configuration.
-        // Disabled warnings are about 'unused' variables (managed by the editor script via reflection).
-        #pragma warning disable 0169, 0414, 1635
+        // ReSharper disable NotAccessedField.Local (used by the editor scripts via reflection)
+        #pragma warning disable 0169, 0414, 1635, IDE0052
         [SerializeField] private int atlasSizeLimit = 2048;
-        [SerializeField] private bool forceSquare = false;
+        [SerializeField] private bool forceSquare;
         [SerializeField] private float pixelsPerUnit = 100f;
         [SerializeField] private int diceUnitSize = 64;
         [SerializeField] private int padding = 2;
+        [SerializeField] private float uvInset;
         [SerializeField] private Vector2 defaultPivot = new Vector2(.5f, .5f);
         [SerializeField] private bool keepOriginalPivot;
         [SerializeField] private bool decoupleSpriteData;
         [SerializeField] private Object inputFolder;
         [SerializeField] private bool includeSubfolders;
         [SerializeField] private bool prependSubfolderNames;
-        [HideInInspector]
         [SerializeField] private string generatedSpritesFolderGuid;
-        #pragma warning restore 0169, 0414, 1635
+        [SerializeField] private string lastRatioValue = "Unknown (build atlas to update)";
+        #pragma warning restore 0169, 0414, 1635, IDE0052
+        // ReSharper restore NotAccessedField.Local
         #endif
 
         /// <summary>
-        /// Retrieves stored diced sprite data.
+        /// Retrieves a diced sprite with the specified name.
         /// </summary>
         /// <param name="spriteName">Name of the sprite to retrieve.</param>
-        /// <returns>Diced sprite data or null if not found.</returns>
-        public DicedSprite GetSprite (string spriteName) => dicedSprites.Find(sprite => sprite.Name.Equals(spriteName));
-        /// <summary>
-        /// Retrieves all the generated diced sprites data contained in the atlas.
-        /// </summary>
-        public List<DicedSprite> GetAllSprites () => new List<DicedSprite>(dicedSprites);
+        /// <returns>Diced sprite with the specified name or null if not found.</returns>
+        public Sprite GetSprite (string spriteName) => sprites.Find(s => s.name == spriteName);
     }
 }
